@@ -1,0 +1,14 @@
+{if count($flashes)}
+	{foreach $flashes as $flash}
+		<div class="flash errorAlert {if $flash->type == 'success'}errorAlert--success{elseif $flash->type == 'error'}errorAlert--error{elseif $flash->type == 'info'}errorAlert--info{/if}">
+			<i>&nbsp;</i>
+			{$flash->message}
+		</div>
+	{/foreach}
+
+    <script type="text/javascript">
+        $(function() {
+            window.FlashMsg.closeFlashMsg();
+        });
+    </script>
+{/if}

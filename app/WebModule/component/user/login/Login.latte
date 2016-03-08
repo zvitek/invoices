@@ -1,0 +1,15 @@
+{snippet login}
+    {form login, class=>'form ajax'}
+        {control flashes $flashes}
+        {control errors $form}
+        <div class="form__row">
+            {input email, class=>'ui-input', placeholder=>'Váš e-mail'}
+        </div>
+        <div class="form__row">
+            {input password, class=>'ui-input', placeholder=>'Heslo'}
+        </div>
+        <div class="form__row form__row--submit">
+            {input submit, class=>'btn btn--centered ui-submit'}
+        </div>
+    {/form}
+{/snippet}

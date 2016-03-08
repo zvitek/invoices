@@ -1,0 +1,9 @@
+{if count($invoices)}
+	<ul>
+		{foreach $invoices as $invoice}
+			<li>{$invoice['number']}</li>
+		{/foreach}
+	</ul>
+{else}
+	Žádné faktury
+{/if}

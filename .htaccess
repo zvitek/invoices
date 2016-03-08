@@ -1,0 +1,10 @@
+RewriteEngine On
+
+RewriteRule ^shared/(.*)									/www/shared/$1												[L,QSA]
+
+RewriteCond %{HTTP_HOST}									^invoices.iwory.localhost									[OR]
+RewriteCond %{HTTP_HOST}									^remy-we.dontpanic.cz$										[NC]
+RewriteCond %{REQUEST_URI}									!data/
+RewriteCond %{REQUEST_URI}									!shared/
+RewriteCond %{REQUEST_URI}									!www/web/
+RewriteRule (.*)											/www/web/$1													[L]

@@ -1,0 +1,8 @@
+{if $form->hasErrors()}
+	{foreach $form->errors as $error}
+        <div class="errorAlert">
+			<i class="fa fa-info pr10"></i>
+			{$error}
+		</div>
+	{/foreach}
+{/if}
