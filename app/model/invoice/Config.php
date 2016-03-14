@@ -40,8 +40,8 @@ class Config extends \Nette\Object
 	COLUMN_INVOICES_ID = 'invoices_id',
 	COLUMN_NAME = 'name',
 	COLUMN_DESCRIPTION = 'description',
-	COLUMN_PRICE_PER_HOUR = 'price_per_hour',
-	COLUMN_HOURS = 'hours',
+	COLUMN_PRICE_PER_UNIT = 'price_per_unit',
+	COLUMN_UNITS= 'units',
 	COLUMN_TOTAL = 'total',
 
 	COLUMN_CODE = 'code',

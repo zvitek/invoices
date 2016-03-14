@@ -12,12 +12,12 @@ abstract class BasePresenter extends \App\WebModule\Presenters\BasePresenter
 	/******************* CONTROLS - INVOICE *******************/
 
 	public function createComponentInvoiceList() {
-		$control = new Invoice\InvoiceList($this->invoiceModel);
+		$control = new Invoice\IList($this->invoiceModel);
 		return $control;
 	}
 
 	public function createComponentInvoice() {
-		$control = new Invoice\Invoice($this->invoiceModel);
+		$control = new Invoice\IDetail($this->invoiceModel);
 		return $control;
 	}
 }

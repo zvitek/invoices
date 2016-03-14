@@ -1,12 +1,17 @@
 <!DOCTYPE html>
 <html lang="cs">
-<head>
-    <title>Web Main - {block title|striptags}{/block}</title>
-</head>
-<body >
-<div id="main">
-    {include content}
-</div>
-<!-- /main -->
-</body>
+	<head>
+	    <title>Web Main - {block title|striptags}{/block}</title>
+		<script src="//code.jquery.com/jquery-1.12.0.min.js"></script>
+	</head>
+	<body>
+		{snippet flashes}
+			{control flashes $flashes}
+		{/snippet}
+		<div id="main">
+		    {include content}
+		</div>
+		<script type="text/javascript" src="/shared/vendors/js/nette.ajax.js"></script>
+		<script type="text/javascript" src="/shared/vendors/js/nette.forms.js"></script>
+	</body>
 </html>

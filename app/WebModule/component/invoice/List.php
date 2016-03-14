@@ -7,7 +7,7 @@ use App\Model\User;
 use App\Helper;
 use Nette\Application\UI;
 
-class InvoiceList extends UI\Control
+class IList extends UI\Control
 {
 	/** @var InvoiceModel */
 	private $invoiceModel;
@@ -17,7 +17,7 @@ class InvoiceList extends UI\Control
 	}
 
 	public function render() {
-		$this->template->setFile(__DIR__ . '/InvoiceList.latte');
+		$this->template->setFile(__DIR__ . '/templates/List.latte');
 		$this->template->invoices = $this->invoiceModel->invoice__data($this->invoiceModel->invoiceFilter__ids(), [
 			Invoice\Config::STRUCTURE_DATE,
 		]);

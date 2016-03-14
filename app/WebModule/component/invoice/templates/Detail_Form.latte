@@ -1,0 +1,16 @@
+{control invoice_Form}
+<br />
+<br />
+<br />
+
+{snippet items}
+	{if count($invoice_Data)}
+		{foreach $invoice_Data['items'] as $item}
+			{var $item_ID = $item['id']}
+			{control items-$item_ID:_Edit $item}
+			<a n:href="__removeItem! item_ID=>$item['id']" class="ajax">odstranit</a>
+			<br /><br /><br /><br />
+		{/foreach}
+	{/if}
+{/snippet}
+<a n:href="__addItem!" class="ajax">přidat položku</a>

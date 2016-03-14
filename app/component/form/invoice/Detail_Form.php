@@ -5,7 +5,7 @@ use App\Config;
 use App\Control\Form\BaseForm;
 use App\Model\Invoice\InvoiceModel;
 
-class Invoice_Form extends BaseForm
+class IDetail_Form extends BaseForm
 {
 	/** @var InvoiceModel */
 	private $invoiceModel;

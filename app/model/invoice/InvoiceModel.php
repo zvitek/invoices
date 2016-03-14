@@ -10,6 +10,7 @@ use Joseki\Application\Responses\PdfResponse;
 use Latte\Engine;
 use Nette\Security\User;
 use Nette\Utils\Random;
+use Nette\Utils\Validators;
 use Tracy\Debugger;
 
 class InvoiceModel extends Config
@@ -84,10 +85,7 @@ class InvoiceModel extends Config
 					$structure['contractor'] = $this->contractorModel->contractor__data($invoice[self::COLUMN_CONTRACTORS_ID]);
 				}
 				if(in_array(self::STRUCTURE_ITEMS, $data) || !count($data)) {
-					// @TODO ADD ITEMS
-					$structure['items'] = [
-
-					];
+					$structure['items'] = $this->invoiceItem__data($this->invoiceItems_byInvoice__ids($invoice[self::COLUMN_ID]));
 				}
 				if(is_numeric($invoices)) {
 					return $structure;
@@ -103,12 +101,48 @@ class InvoiceModel extends Config
 		return $buffer;
 	}
 
+	public function invoiceItem__data($items) {
+		$buffer = [];
+		$selection = Database::selection($items);
+		if(is_null($selection)) {
+			return $buffer;
+		}
+		$invoiceItems_Data = $this->db->select('*')->from(self::TABLE_INVOICE_ITEMS)->where($selection)->fetchAll();
+		if(count($invoiceItems_Data)) {
+			foreach($invoiceItems_Data as $item) {
+				$structure = [
+					'id' => $item[self::COLUMN_ID],
+					'invoices_id' => $item[self::COLUMN_INVOICES_ID],
+					'basic' => [
+						'name' => $item[self::COLUMN_NAME],
+						'description' => $item[self::COLUMN_DESCRIPTION],
+					],
+					'price' => [
+						'per_unit' => $item[self::COLUMN_PRICE_PER_UNIT],
+						'units' => $item[self::COLUMN_UNITS],
+						'total' => $item[self::COLUMN_TOTAL],
+					],
+					'date' => [
+						'created' => $item[self::COLUMN_CREATED],
+					],
+				];
+				$buffer[] = $structure;
+			}
+		}
+		return $buffer;
+	}
+
 	/************************************************************************************************************z*v***/
 	/********** GETTER **********/
 	
 	public function invoiceFilter__ids() {
 		$invoice_Data = $this->db->select(self::COLUMN_ID)->from(self::TABLE_INVOICES)->fetchAll();
 		return count($invoice_Data) ? Data::prepare_ids($invoice_Data) : [];
+	}
+
+	public function invoiceItems_byInvoice__ids($invoice_ID) {
+		$items_Data = $this->db->select(self::COLUMN_ID)->from(self::TABLE_INVOICE_ITEMS)->where(self::COLUMN_INVOICES_ID, '= %i', $invoice_ID)->fetchAll();
+		return count($items_Data) ? Data::prepare_ids($items_Data) : [];
 	}
 
 	/************************************************************************************************************z*v***/
@@ -160,7 +194,55 @@ class InvoiceModel extends Config
 		try {
 			return $this->db->insert(self::TABLE_INVOICE_ITEMS, [
 				self::COLUMN_INVOICES_ID => $invoice_ID,
+				self::COLUMN_CREATED  => new DateTime(),
 			])->execute(\dibi::IDENTIFIER);
+		}
+		catch(Exception $e) {
+			Debugger::log($e);
+			return FALSE;
+		}
+	}
+
+	public function invoiceItem__remove($item_ID) {
+		try {
+			$this->db->delete(self::TABLE_INVOICE_ITEMS)->where(self::COLUMN_ID, '= %i', $item_ID)->execute();
+			return TRUE;
+		}
+		catch(Exception $e) {
+			Debugger::log($e);
+			return FALSE;
+		}
+	}
+
+	public function invoiceItem__update($item_ID, $data) {
+		$update = [];
+		if(!is_numeric($item_ID)) {
+			return FALSE;
+		}
+		if(array_key_exists(self::COLUMN_NAME, $data)) {
+			$update[self::COLUMN_NAME] = Data::pick($data[self::COLUMN_NAME]);
+		}
+		if(array_key_exists(self::COLUMN_DESCRIPTION, $data)) {
+			$update[self::COLUMN_DESCRIPTION] = Data::pick($data[self::COLUMN_DESCRIPTION]);
+		}
+		if(array_key_exists(self::COLUMN_PRICE_PER_UNIT, $data)) {
+			if(is_numeric($data[self::COLUMN_PRICE_PER_UNIT])) {
+				$update[self::COLUMN_PRICE_PER_UNIT] = $data[self::COLUMN_PRICE_PER_UNIT];
+			}
+		}
+		if(array_key_exists(self::COLUMN_TOTAL, $data)) {
+			if(is_numeric($data[self::COLUMN_TOTAL])) {
+				$update[self::COLUMN_TOTAL] = $data[self::COLUMN_TOTAL];
+			}
+		}
+		if(array_key_exists(self::COLUMN_UNITS, $data)) {
+			if(is_numeric($data[self::COLUMN_UNITS])) {
+				$update[self::COLUMN_UNITS] = $data[self::COLUMN_UNITS];
+			}
+		}
+		try {
+			$this->db->update(self::TABLE_INVOICE_ITEMS, $update)->where(self::COLUMN_ID, '= %i', $item_ID)->execute();
+			return TRUE;
 		}
 		catch(Exception $e) {
 			Debugger::log($e);
