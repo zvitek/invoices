@@ -11,6 +11,7 @@ use Latte\Engine;
 use Nette\DI\Container;
 use Nette\Security\User;
 use Nette\Utils\Random;
+use Nette\Utils\Strings;
 use Nette\Utils\Validators;
 use Tracy\Debugger;
 
@@ -91,6 +92,18 @@ class InvoiceModel extends Config
 				}
 				if(in_array(self::STRUCTURE_ITEMS, $data) || !count($data)) {
 					$structure['items'] = $this->invoiceItem__data($this->invoiceItems_byInvoice__ids($invoice[self::COLUMN_ID]));
+				}
+				if(in_array(self::STRUCTURE_INVOICE, $data) || !count($data)) {
+					$structure['invoice'] = NULL;
+					$file_Name = $this->invoice__fileName($structure, TRUE);
+					if(file_exists($this->config['path']['invoice']['pdf'] . $file_Name)) {
+						$structure['invoice'] = [
+							'file_name' => $file_Name,
+							'full_path' => $this->config['url']['root'] . 'data/invoice/pdf/' . $file_Name,
+							'document_path' => $this->config['path']['invoice']['pdf'] . $file_Name,
+							'path' => '/data/invoice/pdf/' . $file_Name,
+						];
+					}
 				}
 				if(is_numeric($invoices)) {
 					return $structure;
@@ -174,6 +187,10 @@ class InvoiceModel extends Config
 
 	public function clients__select() {
 		return $this->clientModel->clients__select();
+	}
+
+	public function invoice__fileName($invoice_Data, $extension = FALSE) {
+		return sprintf('%s%s', Strings::webalize(sprintf('%s_%s', $invoice_Data['number'], !is_null($invoice_Data['contractor']) ? $invoice_Data['contractor']['name'] : NULL)), $extension ? '.pdf' : NULL);
 	}
 
 	/************************************************************************************************************z*v***/
@@ -324,21 +341,25 @@ class InvoiceModel extends Config
 	/************************************************************************************************************z*v***/
 	/********** PDF **********/
 
-	public function invoice__createPDF($invoice_ID) {
+	public function invoice__createPDF($invoice_ID, $render = FALSE, $open = FALSE) {
 		$invoice_Data = $this->invoice__data($invoice_ID);
 		if(!is_null($invoice_Data)) {
-			return $this->invoice__PDF($invoice_Data);
+			return $this->invoice__PDF($invoice_Data, $render, $open);
 		}
 		return FALSE;
 	}
 
-	private function invoice__PDF($invoice_Data) {
+	private function invoice__PDF($invoice_Data, $render = FALSE, $open = FALSE) {
 		require_once __DIR__ . '/../../../vendor/mpdf/mpdf/mpdf.php';
-		$file_Name = sprintf('%s_%s', $invoice_Data['number'], !is_null($invoice_Data['contractor']) ? $invoice_Data['contractor']['name'] : NULL);
+		$file_Name = $this->invoice__fileName($invoice_Data);
 		$latte = new Engine();
 		$params = [
 			'invoice' => $invoice_Data,
 		];
+		if($render) {
+			$latte->render(__DIR__ . '/templates/invoice.latte', $params);
+			die;
+		}
 		$stylesheet = file_get_contents(__DIR__ . '/templates/css/pdf.css');
 		$template = $latte->renderToString(__DIR__ . '/templates/invoice.latte', $params);
 		$pdf = new PdfResponse($template);
@@ -346,7 +367,10 @@ class InvoiceModel extends Config
 		$pdf->pageMargins = '0,0,0,0,0,0';
 		$pdf->getMPDF()->WriteHTML($stylesheet, 1);
 		$pdf->save($this->config['path']['invoice']['pdf'], $file_Name);
-		//$pdf->setSaveMode(PdfResponse::INLINE);
+		if($open) {
+			$pdf->setSaveMode(PdfResponse::INLINE);
+			return $pdf;
+		}
 		return $file_Name;
 	}
 }

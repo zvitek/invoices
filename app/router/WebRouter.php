@@ -14,6 +14,7 @@ class WebRouterFactory
 		$router = new RouteList();
 		$router[] = UserRouterFactory::createRouter();
 		$router[] = InvoiceRouterFactory::createRouter();
+		$router[] = ExportRouterFactory::createRouter();
 		$router[] = $router_Web = new RouteList('Web');
 		$router_Web[] = new Route('<action>[/<id>]', 'Page:default');
 

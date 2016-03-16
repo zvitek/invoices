@@ -1,7 +1,7 @@
 {if count($invoices)}
 	<ul>
 		{foreach $invoices as $invoice}
-			<li>{$invoice['number']}</li>
+			<li><a href="{plink :Web:Invoice:Page:edit invoice_Token=>$invoice['token']}"> {$invoice['number']}</a></li>
 		{/foreach}
 	</ul>
 {else}

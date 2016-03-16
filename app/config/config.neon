@@ -37,6 +37,8 @@ common:
 
 production < common:
 	parameters:
+		url:
+			root: null
 		database:
 			host: *
 			username: *
@@ -46,6 +48,8 @@ production < common:
 
 development < common:
 	parameters:
+		url:
+			root: null
 		database:
 			host: *
 			username: *
@@ -55,6 +59,8 @@ development < common:
 
 development_localhost < common:
 	parameters:
+		url:
+			root: http://invoices.iwory.localhost/
 		database:
 			host: 127.0.0.1
 			username: root

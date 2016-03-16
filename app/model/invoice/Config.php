@@ -11,7 +11,8 @@ class Config extends \Nette\Object
 	STRUCTURE_ITEMS = 'structure.items',
 	STRUCTURE_BANKS = 'structure.banks',
 	STRUCTURE_CLIENTS = 'structure.clients',
-	STRUCTURE_CONTRACTORS = 'structure.contractor';
+	STRUCTURE_CONTRACTORS = 'structure.contractor',
+	STRUCTURE_INVOICE = 'structure.invoice';
 
 	const
 	TABLE_INVOICES = 'invoices',
