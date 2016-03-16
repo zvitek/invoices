@@ -1,5 +1,10 @@
 common:
 	parameters:
+		path:
+			document_root: %appDir%/../
+			data_root: %path.document_root%data/
+			invoice:
+				pdf: %path.data_root%invoice/pdf/
 
 	php:
 		date.timezone: Europe/Prague

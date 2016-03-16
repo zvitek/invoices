@@ -7,7 +7,7 @@ use App\Model\User;
 use App\Helper;
 use Nette\Application\UI;
 
-class IItem extends UI\Control
+class IItem_Form extends UI\Control
 {
 	/** @var InvoiceModel */
 	private $invoiceModel;
@@ -19,13 +19,9 @@ class IItem extends UI\Control
 		$this->invoiceModel = $invoiceModel;
 	}
 
-	public function render() {
-		$this->template->setFile(__DIR__ . '/templates/Item.latte');
-		$this->template->render();
-	}
-
-	public function render_Edit($values = []) {
-		if(count($values)) {
+	public function render($values = NULL) {
+		$item_Data = is_null($values) ? $this->invoiceModel->invoiceItem__data($this->item_ID) : $values;
+		if(!is_null($item_Data)) {
 			$form_defaults = [
 				'name' => $values['basic']['name'],
 				'description' => $values['basic']['description'],
@@ -36,6 +32,7 @@ class IItem extends UI\Control
 			$this['item_Form']->setDefaults($form_defaults);
 		}
 		$this->template->setFile(__DIR__ . '/templates/Item_Form.latte');
+		$this->template->item = $item_Data;
 		$this->template->render();
 	}
 

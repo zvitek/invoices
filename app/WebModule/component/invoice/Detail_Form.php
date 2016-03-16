@@ -7,7 +7,7 @@ use App\Model\User;
 use App\Helper;
 use Nette\Application\UI;
 
-class IDetail extends UI\Control
+class IDetail_Form extends Control\BaseControl
 {
 	/** @var InvoiceModel */
 	private $invoiceModel;
@@ -21,20 +21,18 @@ class IDetail extends UI\Control
 
 	public function render() {
 		$invoice_Data = $this->invoiceModel->invoice__data($this->invoice_ID);
-		$this->template->setFile(__DIR__ . '/templates/Detail.latte');
-		$this->template->invoice_Data = $invoice_Data;
-		$this->template->render();
-	}
-
-	public function render_Edit() {
-		$invoice_Data = $this->invoiceModel->invoice__data($this->invoice_ID);
 		if(!is_null($invoice_Data)) {
 			$invoice_defaults = [
 				'number' => $invoice_Data['number'],
-				'issue_date' => Helper\Date::dFormat($invoice_Data['date']['issue']),
-				'date_due' => Helper\Date::dFormat($invoice_Data['date']['due']),
+				'issue_date' => Helper\DateTime::date_Format($invoice_Data['date']['issue']),
+				'date_due' => Helper\DateTime::date_Format($invoice_Data['date']['due']),
 				'paid' => $invoice_Data['param']['paid'],
 				'pricing' => $invoice_Data['param']['pricing'],
+				'price' => $invoice_Data['price']['without_vat'],
+				'price_vat' => $invoice_Data['price']['with_vat'],
+				'bank_accounts_id' => is_null($invoice_Data['bank']) ? NULLL : $invoice_Data['bank']['id'],
+				'contractors_id' => is_null($invoice_Data['contractor']) ? NULLL : $invoice_Data['contractor']['id'],
+				'clients_id' => is_null($invoice_Data['client']) ? NULLL : $invoice_Data['client']['id'],
 			];
 			$this['invoice_Form']->setDefaults($invoice_defaults);
 		}
@@ -54,7 +52,21 @@ class IDetail extends UI\Control
 	}
 
 	public function invoice_Submitted(UI\Form $form, $values) {
-
+		$values['issue_date'] = Helper\DateTime::date_Database($values['issue_date']);
+		$values['date_due'] = Helper\DateTime::date_Database($values['date_due']);
+		if($this->invoiceModel->invoice__update($this->invoice_ID, $values)) {
+			$this->presenter->flashMessage('Faktura upravena', 'success');
+		}
+		else {
+			$this->presenter->flashMessage('Faktura se nepodařilo upravit', 'error');
+		}
+		if($this->presenter->isAjax()) {
+			$this->presenter->redrawControl('flashes');
+			$this->redrawControl('invoice_Form');
+		}
+		else {
+			$this->presenter->redirect('this');
+		}
 	}
 
 	/**************************************************************************************************************z*v*/
@@ -63,7 +75,7 @@ class IDetail extends UI\Control
 	public function createComponentItems() {
 		$invoiceModel = $this->invoiceModel;
 		$control = new UI\Multiplier(function($name) use($invoiceModel){
-			$form = new IItem($invoiceModel);
+			$form = new IItem_Form($invoiceModel);
 			$form->item_ID = $name;
 			return $form;
 		});
@@ -80,13 +92,7 @@ class IDetail extends UI\Control
 		else {
 			$this->presenter->flashMessage('Položku se nepodařilo přidat', 'error');
 		}
-		if($this->presenter->isAjax()) {
-			$this->presenter->redrawControl('flashes');
-			$this->redrawControl('items');
-		}
-		else {
-			$this->presenter->redirect('this');
-		}
+		$this->redraw(['invoice_Items', 'presenter.flashes']);
 	}
 
 	public function handle__removeItem($item_ID) {
@@ -96,12 +102,10 @@ class IDetail extends UI\Control
 		else {
 			$this->presenter->flashMessage('Položku se nepodařilo odstranit', 'desktop');
 		}
-		if($this->presenter->isAjax()) {
-			$this->redrawControl('items');
-			$this->presenter->redrawControl('flashes');
-		}
-		else {
-			$this->presenter->redirect('this');
-		}
+		$this->redraw(['invoice_Items', 'presenter.flashes']);
+	}
+
+	public function handle__createPDF() {
+		$this->invoiceModel->invoice__createPDF($this->invoice_ID);
 	}
 }

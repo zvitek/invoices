@@ -1,16 +1,28 @@
-{control invoice_Form}
+{snippet invoice_Form}
+	{control invoice_Form}
+{/snippet}
 <br />
 <br />
 <br />
 
-{snippet items}
+<a n:href="__createPDF!" class="ajax">vytvořit PDF</a>
+
+<br />
+<br />
+
+{snippet invoice_Items}
 	{if count($invoice_Data)}
 		{foreach $invoice_Data['items'] as $item}
 			{var $item_ID = $item['id']}
-			{control items-$item_ID:_Edit $item}
+			{control items-$item_ID $item}
 			<a n:href="__removeItem! item_ID=>$item['id']" class="ajax">odstranit</a>
 			<br /><br /><br /><br />
 		{/foreach}
 	{/if}
+	<script type="text/javascript">
+		$(function() {
+			invoice.recount();
+		});
+	</script>
 {/snippet}
 <a n:href="__addItem!" class="ajax">přidat položku</a>

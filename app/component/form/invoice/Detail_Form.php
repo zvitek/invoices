@@ -10,9 +10,12 @@ class IDetail_Form extends BaseForm
 	/** @var InvoiceModel */
 	private $invoiceModel;
 
-	public function __construct(InvoiceModel $invoiceModel) {
+	public function __construct(InvoiceModel $invoiceModel, $ajax = TRUE) {
 		parent::__construct();
 		$this->invoiceModel = $invoiceModel;
+		if($ajax) {
+			$this->getElementPrototype()->class = 'ajax';
+		}
 
 		$this->addText('number', 'Číslo faktury')
 			->addRule(self::FILLED, 'Zadejte číslo faktury');
@@ -22,6 +25,15 @@ class IDetail_Form extends BaseForm
 
 		$this->addText('date_due', 'Datum splatnosti')
 			->addRule(self::FILLED, 'Zadejte datum splatnosti');
+
+		$this->addText('price', 'Cena')
+			->addRule(self::FILLED, 'zadejte celkovou cenu')
+			->addRule(self::NUMERIC, 'Celková cena musí být číslo');
+
+		$this->addText('price_vat', 'Cena s DPH')
+			->addCondition(self::FILLED)
+				->addRule(self::FILLED, 'zadejte celkovou cenu s DPH')
+				->addRule(self::NUMERIC, 'Celková cena s DPH musí být číslo');
 
 		$this->addCheckbox('paid', 'Zaplaceno');
 		$this->addCheckbox('pricing', 'Nacenění');
@@ -44,6 +56,5 @@ class IDetail_Form extends BaseForm
 	}
 
 	public function invoice_Validation(BaseForm $form, $values = []) {
-
 	}
 }

@@ -16,6 +16,6 @@ class PagePresenter extends BasePresenter
 		}
 
 		/** @var Invoice\Invoice */
-		$this['invoice']->invoice_ID = $invoice_ID;
+		$this['invoice_Form']->invoice_ID = $invoice_ID;
 	}
 }

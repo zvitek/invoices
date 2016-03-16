@@ -8,6 +8,7 @@ use Dibi\DateTime;
 use Dibi\Exception;
 use Joseki\Application\Responses\PdfResponse;
 use Latte\Engine;
+use Nette\DI\Container;
 use Nette\Security\User;
 use Nette\Utils\Random;
 use Nette\Utils\Validators;
@@ -30,12 +31,16 @@ class InvoiceModel extends Config
 	/** @var User */
 	private $user;
 
-	public function __construct(Connection $connection, User $user, BankModel $bankModel, ClientModel $clientModel, ContractorModel $contractorModel) {
+	/** @var array */
+	private $config;
+
+	public function __construct(Connection $connection, User $user, BankModel $bankModel, ClientModel $clientModel, ContractorModel $contractorModel, Container $container) {
 		$this->db = $connection;
 		$this->bankModel = $bankModel;
 		$this->clientModel = $clientModel;
 		$this->contractorModel = $contractorModel;
 		$this->user = $user;
+		$this->config = $container->getParameters();
 	}
 
 	/************************************************************************************************************z*v***/
@@ -105,7 +110,7 @@ class InvoiceModel extends Config
 		$buffer = [];
 		$selection = Database::selection($items);
 		if(is_null($selection)) {
-			return $buffer;
+			return Data::return__empty($items);
 		}
 		$invoiceItems_Data = $this->db->select('*')->from(self::TABLE_INVOICE_ITEMS)->where($selection)->fetchAll();
 		if(count($invoiceItems_Data)) {
@@ -126,8 +131,14 @@ class InvoiceModel extends Config
 						'created' => $item[self::COLUMN_CREATED],
 					],
 				];
+				if(is_numeric($items)) {
+					return $structure;
+				}
 				$buffer[] = $structure;
 			}
+		}
+		if(!count($buffer)) {
+			return Data::return__empty($items);
 		}
 		return $buffer;
 	}
@@ -214,6 +225,66 @@ class InvoiceModel extends Config
 		}
 	}
 
+	public function invoice__update($invoice_ID, $data) {
+		$update = [];
+		if(!is_numeric($invoice_ID)) {
+			return FALSE;
+		}
+		if(array_key_exists(self::COLUMN_NUMBER, $data)) {
+			$update[self::COLUMN_NUMBER] = $data[self::COLUMN_NUMBER];
+		}
+		if(array_key_exists(self::COLUMN_DATE_DUE, $data)) {
+			if($data[self::COLUMN_DATE_DUE] instanceof \Nette\Utils\DateTime) {
+				$update[self::COLUMN_DATE_DUE] = $data[self::COLUMN_DATE_DUE];
+			}
+		}
+		if(array_key_exists(self::COLUMN_ISSUE_DATE, $data)) {
+			if($data[self::COLUMN_ISSUE_DATE] instanceof \Nette\Utils\DateTime) {
+				$update[self::COLUMN_ISSUE_DATE] = $data[self::COLUMN_ISSUE_DATE];
+			}
+		}
+		if(array_key_exists(self::COLUMN_PRICE, $data)) {
+			$update[self::COLUMN_PRICE] = is_numeric($data[self::COLUMN_PRICE])
+				? $data[self::COLUMN_PRICE] : NULL;
+		}
+		if(array_key_exists(self::COLUMN_PRICE_VAT, $data)) {
+			$update[self::COLUMN_PRICE_VAT] = is_numeric($data[self::COLUMN_PRICE_VAT])
+				? $data[self::COLUMN_PRICE_VAT] : NULL;
+		}
+		if(array_key_exists(self::COLUMN_PAID, $data)) {
+			$update[self::COLUMN_PAID] = $data[self::COLUMN_PAID] ? TRUE : FALSE;
+		}
+		if(array_key_exists(self::COLUMN_PRICING, $data)) {
+			$update[self::COLUMN_PRICING] = $data[self::COLUMN_PRICING] ? TRUE : FALSE;
+		}
+		if(array_key_exists(self::COLUMN_BANK_ACCOUNTS_ID, $data)) {
+			if(array_key_exists($data[self::COLUMN_BANK_ACCOUNTS_ID], $this->bankModel->accounts__select())) {
+				$update[self::COLUMN_BANK_ACCOUNTS_ID] = $data[self::COLUMN_BANK_ACCOUNTS_ID];
+			}
+		}
+		if(array_key_exists(self::COLUMN_CONTRACTORS_ID, $data)) {
+			if(array_key_exists($data[self::COLUMN_CONTRACTORS_ID], $this->contractorModel->contractors__select())) {
+				$update[self::COLUMN_CONTRACTORS_ID] = $data[self::COLUMN_CONTRACTORS_ID];
+			}
+		}
+		if(array_key_exists(self::COLUMN_CLIENTS_ID, $data)) {
+			if(array_key_exists($data[self::COLUMN_CLIENTS_ID], $this->clientModel->clients__select())) {
+				$update[self::COLUMN_CLIENTS_ID] = $data[self::COLUMN_CLIENTS_ID];
+			}
+		}
+		if(count($update)) {
+			try {
+				$this->db->update(self::TABLE_INVOICES, $update)->where(self::COLUMN_ID, '= %i', $invoice_ID)->execute();
+				return TRUE;
+			}
+			catch(Exception $e) {
+				Debugger::log($e);
+				return FALSE;
+			}
+		}
+		return FALSE;
+	}
+
 	public function invoiceItem__update($item_ID, $data) {
 		$update = [];
 		if(!is_numeric($item_ID)) {
@@ -253,22 +324,29 @@ class InvoiceModel extends Config
 	/************************************************************************************************************z*v***/
 	/********** PDF **********/
 
-	public function invoice__createPDF() {
-		return $this->movement__PDF();
+	public function invoice__createPDF($invoice_ID) {
+		$invoice_Data = $this->invoice__data($invoice_ID);
+		if(!is_null($invoice_Data)) {
+			return $this->invoice__PDF($invoice_Data);
+		}
+		return FALSE;
 	}
 
-	private function movement__PDF() {
+	private function invoice__PDF($invoice_Data) {
 		require_once __DIR__ . '/../../../vendor/mpdf/mpdf/mpdf.php';
+		$file_Name = sprintf('%s_%s', $invoice_Data['number'], !is_null($invoice_Data['contractor']) ? $invoice_Data['contractor']['name'] : NULL);
 		$latte = new Engine();
-		$params = [];
+		$params = [
+			'invoice' => $invoice_Data,
+		];
 		$stylesheet = file_get_contents(__DIR__ . '/templates/css/pdf.css');
-
 		$template = $latte->renderToString(__DIR__ . '/templates/invoice.latte', $params);
 		$pdf = new PdfResponse($template);
 		$pdf->pageFormat = 'A4';
 		$pdf->pageMargins = '0,0,0,0,0,0';
 		$pdf->getMPDF()->WriteHTML($stylesheet, 1);
-		$pdf->setSaveMode(PdfResponse::INLINE);
-		return $pdf;
+		$pdf->save($this->config['path']['invoice']['pdf'], $file_Name);
+		//$pdf->setSaveMode(PdfResponse::INLINE);
+		return $file_Name;
 	}
 }

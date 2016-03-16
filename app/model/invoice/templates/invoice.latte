@@ -11,7 +11,9 @@
 						<img src="/assets/images/pdf/logo.png" width="100" />
 					</td>
 					<td width="250">
-						<h5 class="header__title">Zdeněk Vítek</h5>
+						{if !is_null($invoice['contractor'])}
+							<h5 class="header__title">{$invoice['contractor']['name']}</h5>
+						{/if}
 						<span class="header__subtitle">web developer</span>
 					</td>
 					<td>
@@ -24,17 +26,19 @@
 									<img src="/assets/images/pdf/arrow.png" width="70" />
 								</td>
 								<td>
-									<table>
-										<tr>
-											<td height="30">
-												<div class="header__title">Don’t Panic s.r.o.</div>
-											</td>
-										</tr>
-									</table>
-									<div class="header__subtitle tt-n">
-										Riegrovy sady 28, 120 00 - Praha 2<br /><br />
-										IČ: 275 72 099<br />DIČ: CZ275 72 099
-									</div>
+									{if !is_null($invoice['client'])}
+										<table>
+											<tr>
+												<td height="30">
+													<div class="header__title">{$invoice['client']['name']}</div>
+												</td>
+											</tr>
+										</table>
+										<div class="header__subtitle tt-n">
+											{$invoice['client']['address']['street']}, {$invoice['client']['address']['zip']} - {$invoice['client']['address']['city']}<br /><br />
+											IČ: {$invoice['client']['company']['ic']}{if !is_null($invoice['client']['company']['dic'])}<br />DIČ: {$invoice['client']['company']['dic']}{/if}
+										</div>
+									{/if}
 								</td>
 							</tr>
 						</table>
@@ -52,7 +56,7 @@
 									<div class="invoice--description--bigger">Faktura č.</div>
 								</td>
 								<td class="text--bottom" height="30">
-									<div class="invoice--number"><strong>20160301</strong></div>
+									<div class="invoice--number"><strong>{$invoice['number']}</strong></div>
 								</td>
 							</tr>
 							<tr>
@@ -60,7 +64,7 @@
 									<div class="invoice--description">Datum vystavení</div>
 								</td>
 								<td class="text--bottom">
-									<div class="invoice--date">23. 03. 2016</div>
+									<div class="invoice--date">{$invoice['date']['issue']|date:'d. m. Y'}</div>
 								</td>
 							</tr>
 							<tr>
@@ -68,7 +72,7 @@
 									<div class="invoice--description">Datum splatnosti</div>
 								</td>
 								<td class="text--bottom">
-									<div class="invoice--date">02. 04. 2016</div>
+									<div class="invoice--date">{$invoice['date']['due']|date:'d. m. Y'}</div>
 								</td>
 							</tr>
 						</table>
@@ -88,7 +92,7 @@
 							<tr>
 								<td width="10">&nbsp;</td>
 								<td class="text--right">
-									<div class="total--price">11 654 Kč</div>
+									<div class="total--price">{number_format($invoice['price']['without_vat'], 0, ',', ' ')} Kč</div>
 								</td>
 								<td width="20">&nbsp;</td>
 							</tr>
@@ -108,32 +112,28 @@
 			</table>
 		</div>
 		<div class="items--wrap">
-			<div class="item--line">
-				<table>
-					<tr>
-						<td width="370" height="25">
-							Programové práce na projektech Mixa a Whisky Expert
-						</td>
-						<td class="text--right">500 Kč</td>
-					</tr>
-					<tr>
-						<td>
-							<div class="item--description">It is a long established fact that a reader will be distracted by the readable content of</div>
-						</td>
-						<td>&nbsp;</td>
-					</tr>
-				</table>
-			</div>
-			<div class="item--line--last">
-				<table>
-					<tr>
-						<td width="370" height="25">
-							Programové práce na projektech Mixa a Whisky Expert
-						</td>
-						<td class="text--right">500 Kč</td>
-					</tr>
-				</table>
-			</div>
+			{if count($invoice['items'])}
+				{foreach $invoice['items'] as $item}
+					<div class="item--line{if $iterator->isLast()}--last{/if}">
+						<table>
+							<tr>
+								<td width="370" height="25">
+									{$item['basic']['name']}
+								</td>
+								<td class="text--right">{number_format($item['price']['total'], 0, ',', ' ')} Kč</td>
+							</tr>
+							{if !is_null($item['basic']['description'])}
+								<tr>
+									<td>
+										<div class="item--description">{$item['basic']['description']}</div>
+									</td>
+									<td>&nbsp;</td>
+								</tr>
+							{/if}
+						</table>
+					</div>
+				{/foreach}
+			{/if}
 		</div>
 		<div class="footer__main">
 			<table>
@@ -144,26 +144,28 @@
 					<td class="footer__main--blue text--right">&nbsp;</td>
 					<td width="20" class="footer__main--blue">&nbsp;</td>
 				</tr>
-				<tr>
-					<td width="10" height="10" class="footer__main--gray">&nbsp;</td>
-					<td class="footer__main--gray footer--description">Číslo účtu - Air Bank a.s.</td>
-					<td class="footer__main--gray footer--description">Variabilní číslo</td>
-					<td class="footer__main--blue text--right footer--description">Celkem</td>
-					<td width="20" class="footer__main--blue">&nbsp;</td>
-				</tr>
-				<tr>
-					<td width="10" class="footer__main--gray">&nbsp;</td>
-					<td class="footer__main--gray footer--text" height="20" width="180">
-						1009567032/3030
-					</td>
-					<td class="footer__main--gray footer--text">
-						20160301
-					</td>
-					<td class="footer__main--blue text--right text--bottom footer--text footer--text--price">
-						11 654 Kč
-					</td>
-					<td width="20" class="footer__main--blue">&nbsp;</td>
-				</tr>
+				{if !is_null($invoice['bank'])}
+					<tr>
+						<td width="10" height="10" class="footer__main--gray">&nbsp;</td>
+						<td class="footer__main--gray footer--description">Číslo účtu - {$invoice['bank']['name']}</td>
+						<td class="footer__main--gray footer--description">Variabilní číslo</td>
+						<td class="footer__main--blue text--right footer--description">Celkem</td>
+						<td width="20" class="footer__main--blue">&nbsp;</td>
+					</tr>
+					<tr>
+						<td width="10" class="footer__main--gray">&nbsp;</td>
+						<td class="footer__main--gray footer--text" height="20" width="180">
+							{$invoice['bank']['account']['number']}/{$invoice['bank']['account']['code']}
+						</td>
+						<td class="footer__main--gray footer--text">
+							{$invoice['number']}
+						</td>
+						<td class="footer__main--blue text--right text--bottom footer--text footer--text--price">
+							{number_format($invoice['price']['without_vat'], 0, ',', ' ')} Kč
+						</td>
+						<td width="20" class="footer__main--blue">&nbsp;</td>
+					</tr>
+				{/if}
 				<tr>
 					<td width="10" height="2" class="footer__main--gray">&nbsp;</td>
 					<td class="footer__main--gray">&nbsp;</td>
@@ -172,31 +174,35 @@
 					<td width="20" class="footer__main--blue">&nbsp;</td>
 				</tr>
 			</table>
-			<table>
-				<tr>
-					<td colspan="5" height="30">&nbsp;</td>
-				</tr>
-				<tr>
-					<td width="10">&nbsp;</td>
-					<td class="text--top text--dark_gray" width="180">
-						<strong>Zdeněk Vítek</strong><br />
-						Kurzova 2221/18<br />
-						Praha 5, 155 00
-					</td>
-					<td class="text--top text--dark_gray" width="170">
-						IČ: 73817406<br />
-						Nejsem plátce DPH
-					</td>
-					<td class="text--top text--dark_gray" width="170">
-						zvitek@iwory.cz<br />
-						+420 774 995 414
-					</td>
-					<td class="text--right text--top">
-						<img src="/assets/images/pdf/logo_clear.png" width="70" />
-					</td>
-					<td width="10">&nbsp;</td>
-				</tr>
-			</table>
+			{if !is_null($invoice['contractor'])}
+				<table>
+					<tr>
+						<td colspan="5" height="30">&nbsp;</td>
+					</tr>
+					<tr>
+						<td width="10">&nbsp;</td>
+						<td class="text--top text--dark_gray" width="180">
+							<strong>{$invoice['contractor']['name']}</strong><br />
+							{$invoice['contractor']['address']['street']}<br />
+							{$invoice['contractor']['address']['city']}, {$invoice['contractor']['address']['zip']}
+						</td>
+						<td class="text--top text--dark_gray" width="170">
+							IČ: {$invoice['contractor']['company']['ic']}<br />
+							{if !$invoice['contractor']['info']['payer_vat']}
+								Nejsem plátce DPH
+							{/if}
+						</td>
+						<td class="text--top text--dark_gray" width="170">
+							{$invoice['contractor']['contact']['email']}<br />
+							{$invoice['contractor']['contact']['phone']}
+						</td>
+						<td class="text--right text--top">
+							<img src="/assets/images/pdf/logo_clear.png" width="70" />
+						</td>
+						<td width="10">&nbsp;</td>
+					</tr>
+				</table>
+			{/if}
 		</div>
 	</body>
 </html>

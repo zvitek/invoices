@@ -16,8 +16,8 @@ abstract class BasePresenter extends \App\WebModule\Presenters\BasePresenter
 		return $control;
 	}
 
-	public function createComponentInvoice() {
-		$control = new Invoice\IDetail($this->invoiceModel);
+	public function createComponentInvoice_Form() {
+		$control = new Invoice\IDetail_Form($this->invoiceModel);
 		return $control;
 	}
 }

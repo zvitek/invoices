@@ -8,6 +8,17 @@ class BaseControl extends UI\Control
 	public function __construct() {
 		parent::__construct();
 	}
+	
+	public function evaluate_Control($condition, $messages) {
+		if($condition) {
+			$this->presenter->flashMessage($messages[0], 'success');
+		}
+		else {
+			if(!is_null($messages[1])) {
+				$this->presenter->flashMessage($messages[1], 'error');
+			}
+		}
+	}
 
 	public function redraw($components, $redirect = 'this') {
 		if($this->presenter->isAjax()) {
@@ -21,7 +32,9 @@ class BaseControl extends UI\Control
 			}
 		}
 		else {
-			$this->presenter->redirect($redirect);
+			if(!is_null($redirect)) {
+				$this->presenter->redirect($redirect);
+			}
 		}
 	}
 
