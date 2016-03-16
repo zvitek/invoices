@@ -16,7 +16,7 @@ CREATE TABLE `bank_accounts` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 INSERT INTO `bank_accounts` (`id`, `name`, `number`, `code`, `created`) VALUES
-(1,	'Air Bank a.s.',	'1009567032',	'3030',	'2016-03-11 17:01:52');
+  (1,	'Air Bank a.s.',	'1009567032',	'3030',	'2016-03-11 17:01:52');
 
 DROP TABLE IF EXISTS `clients`;
 CREATE TABLE `clients` (
@@ -24,7 +24,7 @@ CREATE TABLE `clients` (
   `name` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
   `street` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL,
   `city` varchar(30) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `zip` varchar(5) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `zip` varchar(6) COLLATE utf8_unicode_ci DEFAULT NULL,
   `ic` varchar(15) COLLATE utf8_unicode_ci DEFAULT NULL,
   `dic` varchar(15) COLLATE utf8_unicode_ci DEFAULT NULL,
   `created` datetime NOT NULL,
@@ -32,10 +32,10 @@ CREATE TABLE `clients` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 INSERT INTO `clients` (`id`, `name`, `street`, `city`, `zip`, `ic`, `dic`, `created`) VALUES
-(1,	'Český svaz akrobatického rokenrolu',	'Atletická 100/2',	'Praha 6 – Strahov',	'16017',	'48547239',	NULL,	'2016-03-11 16:55:58'),
-(2,	'Don’t Panic s.r.o.',	'Riegrovy sady 28',	'Praha 2',	'1200',	'27572099',	'CZ27572099',	'2016-03-11 16:56:55'),
-(3,	'Viktorie servis, s.r.o.',	'Úmyslovice 59',	'Úmyslovice',	'29001',	'29143551',	NULL,	'2016-03-11 16:57:37'),
-(4,	'LeMi CZ s.r.o.',	'Národní 31',	'Praha 1',	'11000',	NULL,	NULL,	'2016-03-11 16:58:44');
+  (1,	'Český svaz akrobatického rokenrolu',	'Zátopkova 100/2',	'Praha 6 - Strahov',	'160 17',	'485 47 239',	NULL,	'2016-03-11 16:55:58'),
+  (2,	'Don’t Panic s.r.o.',	'Riegrovy sady 28',	'Praha 2',	'120 00',	'275 72 099',	'CZ275 72 099',	'2016-03-11 16:56:55'),
+  (3,	'Viktorie servis, s.r.o.',	'Úmyslovice 59',	'Úmyslovice',	'290 01',	'291 43 551',	'CZ291 43 551',	'2016-03-11 16:57:37'),
+  (4,	'LeMi CZ s.r.o.',	'Hnězdenská 587/18',	'Praha 8',	'181 00',	'247 83 111',	'CZ247 83 111',	'2016-03-11 16:58:44');
 
 DROP TABLE IF EXISTS `contractors`;
 CREATE TABLE `contractors` (
@@ -43,7 +43,7 @@ CREATE TABLE `contractors` (
   `name` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
   `street` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL,
   `city` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `zip` varchar(5) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `zip` varchar(6) COLLATE utf8_unicode_ci DEFAULT NULL,
   `ic` varchar(15) COLLATE utf8_unicode_ci DEFAULT NULL,
   `dic` varchar(15) COLLATE utf8_unicode_ci DEFAULT NULL,
   `phone` varchar(20) COLLATE utf8_unicode_ci DEFAULT NULL,
@@ -54,7 +54,7 @@ CREATE TABLE `contractors` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 INSERT INTO `contractors` (`id`, `name`, `street`, `city`, `zip`, `ic`, `dic`, `phone`, `email`, `payer_vat`, `created`) VALUES
-(1,	'Zdeněk Vítek',	'Kurzova 2221/18',	'Praha 5',	'15500',	'73817406',	NULL,	'774995414',	'zvitek@iwory.cz',	0,	'2016-03-11 17:01:20');
+  (1,	'Zdeněk Vítek',	'Kurzova 2221/18',	'Praha 5',	'155 00',	'738 17 406',	NULL,	'+420 774 995 414',	'zvitek@iwory.cz',	0,	'2016-03-11 17:01:20');
 
 DROP TABLE IF EXISTS `invoices`;
 CREATE TABLE `invoices` (
@@ -85,7 +85,7 @@ CREATE TABLE `invoices` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 INSERT INTO `invoices` (`id`, `token`, `number`, `issue_date`, `date_due`, `price`, `price_vat`, `paid`, `pricing`, `sent`, `created`, `users_id`, `bank_accounts_id`, `clients_id`, `contractors_id`) VALUES
-(1,	'am4epb0zjeauveaanz52jao28irq0wzdkkgpfyge',	'20160302',	'2016-03-11',	'2016-03-12',	54000,	NULL,	0,	0,	0,	'2016-03-11 16:41:21',	1,	1,	3,	1);
+  (1,	'am4epb0zjeauveaanz52jao28irq0wzdkkgpfyge',	'20160302',	'2016-03-11',	'2016-03-12',	54000,	NULL,	0,	0,	0,	'2016-03-11 16:41:21',	1,	1,	1,	1);
 
 DROP TABLE IF EXISTS `invoice_items`;
 CREATE TABLE `invoice_items` (
@@ -103,7 +103,7 @@ CREATE TABLE `invoice_items` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 INSERT INTO `invoice_items` (`id`, `invoices_id`, `name`, `description`, `price_per_unit`, `units`, `total`, `created`) VALUES
-(5,	1,	'Test',	'Description 2\n\n',	54000,	1,	54000,	'2016-03-11 21:46:57');
+  (5,	1,	'Test',	'Description 2\n\n',	54000,	1,	54000,	'2016-03-11 21:46:57');
 
 DROP TABLE IF EXISTS `users`;
 CREATE TABLE `users` (
@@ -124,7 +124,7 @@ CREATE TABLE `users` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 INSERT INTO `users` (`id`, `languages_id`, `email`, `name`, `surname`, `password`, `password_token`, `password_expiration`, `token`, `active`, `created`) VALUES
-(1,	NULL,	'zvitek@iwory.cz',	'Zdeněk',	'Vítek',	'$2y$10$kszIpACgkD30qh/21EvvdemR.uytq/Q3Anggx5BtoRqRcEcc4wnWO',	NULL,	NULL,	'797e20f4219de5f7c32d08trw696f262d7833224',	'2016-01-13 23:33:52',	'2016-01-12 23:35:33');
+  (1,	NULL,	'zvitek@iwory.cz',	'Zdeněk',	'Vítek',	'$2y$10$kszIpACgkD30qh/21EvvdemR.uytq/Q3Anggx5BtoRqRcEcc4wnWO',	NULL,	NULL,	'797e20f4219de5f7c32d08trw696f262d7833224',	'2016-01-13 23:33:52',	'2016-01-12 23:35:33');
 
 DROP TABLE IF EXISTS `user_has_role`;
 CREATE TABLE `user_has_role` (
@@ -137,7 +137,7 @@ CREATE TABLE `user_has_role` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 INSERT INTO `user_has_role` (`users_id`, `user_roles_id`) VALUES
-(1,	1);
+  (1,	1);
 
 DROP TABLE IF EXISTS `user_roles`;
 CREATE TABLE `user_roles` (
@@ -148,6 +148,6 @@ CREATE TABLE `user_roles` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 INSERT INTO `user_roles` (`id`, `key_name`, `name`) VALUES
-(1,	'admin',	'Admin');
+  (1,	'admin',	'Admin');
 
--- 2016-03-16 18:32:37
+-- 2016-03-16 18:50:20
