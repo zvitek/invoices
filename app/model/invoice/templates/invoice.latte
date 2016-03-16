@@ -136,15 +136,15 @@
 			{/if}
 		</div>
 		<div class="footer__main">
-			<table>
-				<tr>
-					<td width="10" height="10" class="footer__main--gray">&nbsp;</td>
-					<td class="footer__main--gray">&nbsp;</td>
-					<td class="footer__main--gray">&nbsp;</td>
-					<td class="footer__main--blue text--right">&nbsp;</td>
-					<td width="20" class="footer__main--blue">&nbsp;</td>
-				</tr>
-				{if !is_null($invoice['bank'])}
+			{if !is_null($invoice['bank'])}
+				<table>
+					<tr>
+						<td width="10" height="10" class="footer__main--gray">&nbsp;</td>
+						<td class="footer__main--gray">&nbsp;</td>
+						<td class="footer__main--gray">&nbsp;</td>
+						<td class="footer__main--blue text--right">&nbsp;</td>
+						<td width="20" class="footer__main--blue">&nbsp;</td>
+					</tr>
 					<tr>
 						<td width="10" height="10" class="footer__main--gray">&nbsp;</td>
 						<td class="footer__main--gray footer--description">Číslo účtu - {$invoice['bank']['name']}</td>
@@ -165,15 +165,15 @@
 						</td>
 						<td width="20" class="footer__main--blue">&nbsp;</td>
 					</tr>
-				{/if}
-				<tr>
-					<td width="10" height="2" class="footer__main--gray">&nbsp;</td>
-					<td class="footer__main--gray">&nbsp;</td>
-					<td class="footer__main--gray">&nbsp;</td>
-					<td class="footer__main--blue text--right">&nbsp;</td>
-					<td width="20" class="footer__main--blue">&nbsp;</td>
-				</tr>
-			</table>
+					<tr>
+						<td width="10" height="2" class="footer__main--gray">&nbsp;</td>
+						<td class="footer__main--gray">&nbsp;</td>
+						<td class="footer__main--gray">&nbsp;</td>
+						<td class="footer__main--blue text--right">&nbsp;</td>
+						<td width="20" class="footer__main--blue">&nbsp;</td>
+					</tr>
+				</table>
+			{/if}
 			{if !is_null($invoice['contractor'])}
 				<table>
 					<tr>

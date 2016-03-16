@@ -21,7 +21,6 @@ class IDetail_Form extends Control\BaseControl
 
 	public function render() {
 		$invoice_Data = $this->invoiceModel->invoice__data($this->invoice_ID);
-		db($invoice_Data);
 		if(!is_null($invoice_Data)) {
 			$invoice_defaults = [
 				'number' => $invoice_Data['number'],

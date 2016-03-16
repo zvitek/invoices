@@ -45,7 +45,7 @@ class InvoicePresenter extends BasePresenter
 			header("Cache-Control: public");
 			header("Content-Description: File Transfer");
 			header('Content-Type: application/pdf');
-			header('Content-Disposition: attachment; filename=' . $invoice_Data['invoice']['file_name'] . '.pdf');
+			header('Content-Disposition: attachment; filename=' . $invoice_Data['invoice']['file'] . '.pdf');
 			readfile($invoice_Data['invoice']['document_path']);
 		}
 		else {

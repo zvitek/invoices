@@ -98,6 +98,7 @@ class InvoiceModel extends Config
 					$file_Name = $this->invoice__fileName($structure, TRUE);
 					if(file_exists($this->config['path']['invoice']['pdf'] . $file_Name)) {
 						$structure['invoice'] = [
+							'file' => str_replace('.pdf', '', $file_Name),
 							'file_name' => $file_Name,
 							'full_path' => $this->config['url']['root'] . 'data/invoice/pdf/' . $file_Name,
 							'document_path' => $this->config['path']['invoice']['pdf'] . $file_Name,
